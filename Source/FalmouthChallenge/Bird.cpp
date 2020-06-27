@@ -22,7 +22,7 @@ ABird::ABird()
 
     // Create and setup camera component
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-    Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+    Camera->SetupAttachment(SpringArm);
     Camera->bUsePawnControlRotation = false;
 
     // Set flying control parameters
@@ -31,9 +31,9 @@ ABird::ABird()
     MaxSpeed = 5000.0f;
     MinSpeed = 500.0f;
     CurrentForwardSpeed = 500.0f;
-    YawRateMultiplier = 100.0f;
-    PitchRateMultiplier = 100.0f;
-    RollRateMultiplier = 100.0f;
+    YawRateMultiplier = 200.0f;
+    PitchRateMultiplier = 200.0f;
+    RollRateMultiplier = 200.0f;
 }
 
 void ABird::Tick(float DeltaSeconds)

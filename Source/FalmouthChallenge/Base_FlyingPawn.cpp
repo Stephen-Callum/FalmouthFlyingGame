@@ -5,6 +5,7 @@
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "Components/SceneComponent.h"
 
 
 // Sets default values
@@ -21,12 +22,13 @@ ABase_FlyingPawn::ABase_FlyingPawn()
 	bUseControllerRotationRoll = false;
 }
 
-// Called when the game starts or when spawned
-void ABase_FlyingPawn::BeginPlay()
+void ABase_FlyingPawn::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Super::BeginPlay();
-	
-	
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+
+	// Deflect off surface that the pawn collides with
+	const FRotator CurrentRotation = GetActorRotation();
+	SetActorRotation(FQuat::Slerp(CurrentRotation.Quaternion(), HitNormal.ToOrientationQuat(), 0.025f));
 }
 
 // Called every frame
@@ -35,7 +37,7 @@ void ABase_FlyingPawn::Tick(float DeltaTime)
 
 	const FVector LocalMove = FVector(CurrentForwardSpeed * DeltaTime, 0.0f, 0.0f);
 
-	// Move pawn forwards, sweeping stops the pawn when we collide with other objects
+	//// Move pawn forwards, sweeping stops the pawn when we collide with other objects
 	AddActorLocalOffset(LocalMove, true);
 
 	// Calculate change in rotation this frame
@@ -58,34 +60,41 @@ void ABase_FlyingPawn::SpeedInput(float Val)
 	// Check if there is any input
 	const bool bHasInput = !FMath::IsNearlyEqual(Val, 0.0f);
 
+	// Add/reduce accelaration based on pitch
+	//float CurrentAcc = -GetActorRotation().Pitch * GetWorld()->GetDeltaSeconds() * Acceleration;
+
+	float CurrentAcc = 0.0f;
+
+	if (bHasInput && GetActorRotation().Pitch > 0.0f)
+	{
+		CurrentAcc = GetWorld()->GetDeltaSeconds() * (Val * Acceleration);
+	}
+	else
+	{
+		CurrentAcc = GetActorRotation().Pitch < 0.0f ? (GetWorld()->GetDeltaSeconds() * Acceleration * 2.5f) : (GetWorld()->GetDeltaSeconds() * Acceleration) * -2.0f;
+	}
+
 	// If there is input, multiply axis value by acceleration
 	// If there is no input, reduce speed
-	float CurrentAcc = bHasInput ? (Val * Acceleration) : (-0.5f * Acceleration);
-
-	// Add/reduce accelaration based on pitch
-	//CurrentAcc = CurrentAcc + (-GetActorRotation().Pitch * GetWorld()->GetDeltaSeconds() * Acceleration);
+	//CurrentAcc += bHasInput ? (Val * Acceleration) : (-0.5f * Acceleration);
 
 	// Calculate new speed
-	float NewForwardSpeed = CurrentForwardSpeed + (GetWorld()->GetDeltaSeconds() * CurrentAcc);
+	const float NewForwardSpeed = CurrentForwardSpeed + CurrentAcc;
 
 	// Clamp between MinSpeed and MaxSpeed
 	CurrentForwardSpeed = FMath::Clamp(NewForwardSpeed, MinSpeed, MaxSpeed);
 }
 
+// Used to make checks and perform modifications on the player yaw/roll input
 void ABase_FlyingPawn::YawRollInput(float Rate)
 {
-	if (FMath::Abs(Rate) > 0.2f)
-	{
-		MoveByYawRoll(Rate);
-	}
+	MoveByYawRoll(Rate * 2.0f);
 }
 
+// Used to make checks and perform modifications on the player pitch input
 void ABase_FlyingPawn::PitchInput(float Rate)
 {
-	if (FMath::Abs(Rate) > 0.2f)
-	{
-		MoveByPitch(Rate);
-	}
+	MoveByPitch(Rate * 2.0f);
 }
 
 void ABase_FlyingPawn::MoveByYawRoll(float Val)
@@ -94,9 +103,18 @@ void ABase_FlyingPawn::MoveByYawRoll(float Val)
 
 	CurrentYawSpeed = FMath::FInterpTo(CurrentYawSpeed, TargetYawSpeed, GetWorld()->GetDeltaSeconds(), 2.0f);
 
-	const bool bIsTurning = FMath::Abs(Val) > 0.2f;
+	/*const bool bIsTurning = FMath::Abs(Val) > 0.2f;
 
-	float TargetRollSpeed = bIsTurning ? (CurrentYawSpeed * 0.5) : (GetActorRotation().Roll * -2.0f);
+	float TargetRollSpeed = bIsTurning ? (CurrentYawSpeed * 0.5) : (GetActorRotation().Roll * -2.0f);*/
+
+	bIntendingRoll = FMath::Abs(Val) > 0.0f;
+
+	if (bIntendingPitch && !bIntendingRoll) return;
+
+	float TargetRollSpeed = bIntendingRoll ? ((Val * RollRateMultiplier) + (CurrentYawSpeed * 0.5)) : (GetActorRotation().Roll * -2.0f);
+
+	//GEngine->AddOnScreenDebugMessage(0, 0.0f, FColor::Cyan, FString::Printf(TEXT("TargetRollSpeed: %f"), TargetRollSpeed));
+
 
 	CurrentRollSpeed = FMath::FInterpTo(CurrentRollSpeed, TargetRollSpeed, GetWorld()->GetDeltaSeconds(), 2.0f);
 
@@ -104,13 +122,18 @@ void ABase_FlyingPawn::MoveByYawRoll(float Val)
 
 void ABase_FlyingPawn::MoveByPitch(float Val)
 {
+	
+
+	//// Define pitch speed to reach
+	//float TargetPitchSpeed = Val * TurnSpeed;
+
+	//// Decrease pitch when turning
+	//TargetPitchSpeed += (FMath::Abs(CurrentYawSpeed) * -0.2f);
+
 	// Is player intending to pitch?
 	bIntendingPitch = FMath::Abs(Val) > 0.0f;
 
-	// Define pitch speed to reach
-	float TargetPitchSpeed = Val * TurnSpeed;
-
-	TargetPitchSpeed += (FMath::Abs(CurrentYawSpeed) * -0.2f);
+	const float TargetPitchSpeed = Val * PitchRateMultiplier;
 
 	// Smoothly interpolate to target pitch speed 
 	CurrentPitchSpeed = FMath::FInterpTo(CurrentPitchSpeed, TargetPitchSpeed, GetWorld()->GetDeltaSeconds(), 2.0f);
@@ -126,3 +149,5 @@ void ABase_FlyingPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("PitchControl", this, &ABase_FlyingPawn::PitchInput);
 	PlayerInputComponent->BindAxis("SpeedControl", this, &ABase_FlyingPawn::SpeedInput);
 }
+
+

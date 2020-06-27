@@ -12,13 +12,7 @@ class FALMOUTHCHALLENGE_API ABird : public ABase_FlyingPawn
 {
 	GENERATED_BODY()
 
-	// Spring arm component for camera offset
-	UPROPERTY(Category = Camera, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* SpringArm;
-
-	// Over the shoulder camera component for bird
-	UPROPERTY(Category = Camera, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* Camera;
+	
 
 public:
 	// Sets default values for this pawn's properties
@@ -28,6 +22,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	// Spring arm component for camera offset
+	UPROPERTY(Category = Camera, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* SpringArm;
+
+	// Over the shoulder camera component for bird
+	UPROPERTY(Category = Camera, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* Camera;
 
 public:
 	FORCEINLINE class USpringArmComponent* GetSpringArm() const { return SpringArm; }

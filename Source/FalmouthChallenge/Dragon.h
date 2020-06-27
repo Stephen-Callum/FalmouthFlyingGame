@@ -16,4 +16,22 @@ class FALMOUTHCHALLENGE_API ADragon : public ABase_FlyingPawn
 
 	ADragon();
 
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+protected:
+
+	virtual void BeginPlay() override;
+
+private:
+	APawn* PawnToChase;
+
+	UFUNCTION()
+	void FollowPawn();
+	UFUNCTION()
+	float PawnToChasePitch(APawn* PawnToChase);
+
+	UFUNCTION()
+	float PawnToChaseYawRoll(APawn* PawnToChase);
 };
