@@ -3,10 +3,15 @@
 
 #include "Dragon.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Components/SkeletalMeshComponent.h"
 
 ADragon::ADragon()
 {
     PrimaryActorTick.bCanEverTick = true;
+
+    DragonSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("DragonSkeletalMesh"));
+    DragonSkeletalMesh->SetupAttachment(RootComponent);
 
     // Set flying control parameters
     Acceleration = 500.0f;
@@ -22,6 +27,23 @@ ADragon::ADragon()
 void ADragon::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    SpeedInput(DeltaTime);
+
+    MoveByPitch(DeltaTime);
+
+    MoveByYawRoll(DeltaTime);
+
+    const FVector LocalMove = FVector(CurrentForwardSpeed * DeltaTime, 0.0f, 0.0f);
+
+    AddActorLocalOffset(LocalMove, true);
+
+    FRotator DeltaRotation(0.0f, 0.0f, 0.0f);
+    DeltaRotation.Pitch = CurrentPitchSpeed * DeltaTime;
+    DeltaRotation.Yaw = CurrentYawSpeed * DeltaTime;
+    DeltaRotation.Roll = CurrentRollSpeed * DeltaTime;
+
+    AddActorLocalRotation(DeltaRotation);
 }
 
 void ADragon::BeginPlay()
@@ -33,24 +55,63 @@ void ADragon::BeginPlay()
 
 void ADragon::FollowPawn()
 {
-    // Use Base_FlyingPawn movement methods 
-
+    // Use Base_FlyingPawn movement methods
     // if pawn is infront
         //dragon fly forward
+    
     // if pawn is above/below dragon
         // dragon pitch to pawn
     // if pawn is to left/right of dragon
         // dragon yaw/roll to pawn
+
+    
 }
 
-float ADragon::PawnToChasePitch(APawn* PawnToChase)
+void ADragon::SpeedInput(float DeltaTime)
+{
+    const float CurrentAcc = DeltaTime * Acceleration;
+
+    const float NewForwardSpeed = CurrentForwardSpeed + CurrentAcc;
+
+    CurrentForwardSpeed = FMath::Clamp(NewForwardSpeed, MinSpeed, MaxSpeed);
+}
+
+FRotator ADragon::FindPawnLookAtRotation()
+{
+    const auto RotationToPawn = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PawnToChase->GetActorLocation());
+
+    return RotationToPawn;
+}
+
+float ADragon::PawnToChasePitch()
 {
     return 0.0f;
 }
 
-float ADragon::PawnToChaseYawRoll(APawn* PawnToChase)
+float ADragon::PawnToChaseYawRoll()
 {
     return 0.0f;
 }
+
+void ADragon::MoveByPitch(float DeltaTime)
+{
+    // Find pitch of pawn to chase
+    const auto TargetPitchSpeed = (FindPawnLookAtRotation().Pitch);
+
+    CurrentPitchSpeed = FMath::FInterpTo(CurrentPitchSpeed, TargetPitchSpeed, DeltaTime , 2.0f);
+}
+
+void ADragon::MoveByYawRoll(float DeltaTime)
+{
+    const auto TargetYawSpeed = FindPawnLookAtRotation().Yaw;
+
+    CurrentYawSpeed = FMath::FInterpTo(CurrentYawSpeed, TargetYawSpeed, DeltaTime, 2.0f);
+
+    float TargetRollSpeed = FindPawnLookAtRotation().Roll;
+
+    CurrentRollSpeed = FMath::FInterpTo(CurrentRollSpeed, TargetRollSpeed, DeltaTime, 2.0f);
+}
+
+
 
 

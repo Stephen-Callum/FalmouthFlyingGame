@@ -21,17 +21,34 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-protected:
 	// Spring arm component for camera offset
-	UPROPERTY(Category = Camera, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Camera, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
 
 	// Over the shoulder camera component for bird
-	UPROPERTY(Category = Camera, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Camera, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
+
+	// Static mesh component for bird
+	UPROPERTY(Category = Mesh, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* PawnMesh;
+
+	UPROPERTY(Category = TopDownCamera, EditAnywhere)
+	class USpringArmComponent* TopDownSpringArm;
+
+	UPROPERTY(Category = TopDownCamera, EditAnywhere, BlueprintReadWrite)
+	class USceneCaptureComponent2D* TopDownCamera;
+
+private:
+	// Change max speed depending on pitch
+	void MaxSpeedModifier();
+	
 
 public:
 	FORCEINLINE class USpringArmComponent* GetSpringArm() const { return SpringArm; }
 
 	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
+
+	// Return mesh subobject
+	FORCEINLINE class UStaticMeshComponent* GetPlaneMesh() const { return PawnMesh; }
 };

@@ -20,18 +20,34 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	struct FVector DragonForwardVector;
+
+	UPROPERTY(EditAnyWhere, Category = SkeletalMesh)
+	class USkeletalMeshComponent* DragonSkeletalMesh;
+
 protected:
 
 	virtual void BeginPlay() override;
 
 private:
-	APawn* PawnToChase;
+	class APawn* PawnToChase;
 
 	UFUNCTION()
 	void FollowPawn();
+
+	// Find the rotation to look at pawn
 	UFUNCTION()
-	float PawnToChasePitch(APawn* PawnToChase);
+	FRotator FindPawnLookAtRotation();
 
 	UFUNCTION()
-	float PawnToChaseYawRoll(APawn* PawnToChase);
+	float PawnToChasePitch();
+
+	UFUNCTION()
+	float PawnToChaseYawRoll();
+
+	void MoveByPitch(float DeltaTime);
+	
+	void MoveByYawRoll(float DeltaTime);
+
+	void SpeedInput(float DeltaTime);
 };

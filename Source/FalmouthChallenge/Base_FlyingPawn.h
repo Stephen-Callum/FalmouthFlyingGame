@@ -16,10 +16,8 @@ public:
 	ABase_FlyingPawn();
 
 protected:
-
-	// Static mesh component for bird
-	UPROPERTY(Category = Mesh, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		class UStaticMeshComponent* PawnMesh;
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* SphereCollision;
 
 public:	
 	// Called every frame
@@ -46,11 +44,11 @@ protected:
 
 	// Add rotation to pawn via roll/yaw
 	UFUNCTION()
-	void MoveByYawRoll(float Val);
+	virtual void MoveByYawRoll(float Val);
 
 	// Add rotation onto pawn via pitch
 	UFUNCTION()
-	void MoveByPitch(float Val);
+	virtual void MoveByPitch(float Val);
 
 	/** How quickly forward speed changes */
 	UPROPERTY(Category = Plane, EditAnywhere)
@@ -98,7 +96,6 @@ protected:
 
 public:
 
-	// Return mesh subobject
-	FORCEINLINE class UStaticMeshComponent* GetPlaneMesh() const { return PawnMesh; }
+	
 
 };
