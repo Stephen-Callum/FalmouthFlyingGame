@@ -31,13 +31,16 @@ public:
 
 	// Static mesh component for bird
 	UPROPERTY(Category = Mesh, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* PawnMesh;
+	class USkeletalMeshComponent* PawnSkeletalMesh;
 
 	UPROPERTY(Category = TopDownCamera, EditAnywhere)
 	class USpringArmComponent* TopDownSpringArm;
 
 	UPROPERTY(Category = TopDownCamera, EditAnywhere, BlueprintReadWrite)
 	class USceneCaptureComponent2D* TopDownCamera;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
 	// Change max speed depending on pitch
@@ -50,5 +53,5 @@ public:
 	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
 
 	// Return mesh subobject
-	FORCEINLINE class UStaticMeshComponent* GetPlaneMesh() const { return PawnMesh; }
+	FORCEINLINE class USkeletalMeshComponent* GetSkeletalMesh() const { return PawnSkeletalMesh; }
 };

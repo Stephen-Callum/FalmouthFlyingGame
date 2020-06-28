@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Math/TransformNonVectorized.h"
 
 ADragon::ADragon()
 {
@@ -19,29 +20,42 @@ ADragon::ADragon()
     MaxSpeed = 5000.0f;
     MinSpeed = 500.0f;
     CurrentForwardSpeed = 500.0f;
-    YawRateMultiplier = 200.0f;
-    PitchRateMultiplier = 200.0f;
-    RollRateMultiplier = 200.0f;
+    YawRateMultiplier = 100.0f;
+    PitchRateMultiplier = 100.0f;
+    RollRateMultiplier = 100.0f;
 }
 
 void ADragon::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    SpeedInput(DeltaTime);
+    //SpeedInput(DeltaTime);
 
-    MoveByPitch(DeltaTime);
+    //MoveByPitch(DeltaTime);
 
-    MoveByYawRoll(DeltaTime);
+    //MoveByYawRoll(DeltaTime);
+
+    //const FVector LocalMove = FVector(CurrentForwardSpeed * DeltaTime, 0.0f, 0.0f);
+
+    //AddActorLocalOffset(LocalMove, true);
+
+    //FRotator DeltaRotation(0.0f, 0.0f, 0.0f);
+    //DeltaRotation.Pitch = CurrentPitchSpeed * DeltaTime;
+    //DeltaRotation.Yaw = CurrentYawSpeed * DeltaTime;
+    ////DeltaRotation.Roll = CurrentRollSpeed * DeltaTime;
+
+    //AddActorLocalRotation(DeltaRotation);
 
     const FVector LocalMove = FVector(CurrentForwardSpeed * DeltaTime, 0.0f, 0.0f);
 
     AddActorLocalOffset(LocalMove, true);
 
+    const auto TargetRotation = UKismetMathLibrary::InverseTransformRotation(GetActorTransform(), FindPawnLookAtRotation());
+
     FRotator DeltaRotation(0.0f, 0.0f, 0.0f);
-    DeltaRotation.Pitch = CurrentPitchSpeed * DeltaTime;
-    DeltaRotation.Yaw = CurrentYawSpeed * DeltaTime;
-    DeltaRotation.Roll = CurrentRollSpeed * DeltaTime;
+    DeltaRotation.Pitch = TargetRotation.Pitch * DeltaTime;
+    DeltaRotation.Yaw = TargetRotation.Yaw * DeltaTime;
+    DeltaRotation.Roll = TargetRotation.Roll * DeltaTime;
 
     AddActorLocalRotation(DeltaRotation);
 }
@@ -51,20 +65,6 @@ void ADragon::BeginPlay()
     Super::BeginPlay();
 
     PawnToChase = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn();
-}
-
-void ADragon::FollowPawn()
-{
-    // Use Base_FlyingPawn movement methods
-    // if pawn is infront
-        //dragon fly forward
-    
-    // if pawn is above/below dragon
-        // dragon pitch to pawn
-    // if pawn is to left/right of dragon
-        // dragon yaw/roll to pawn
-
-    
 }
 
 void ADragon::SpeedInput(float DeltaTime)
@@ -83,33 +83,31 @@ FRotator ADragon::FindPawnLookAtRotation()
     return RotationToPawn;
 }
 
-float ADragon::PawnToChasePitch()
-{
-    return 0.0f;
-}
-
-float ADragon::PawnToChaseYawRoll()
-{
-    return 0.0f;
-}
-
 void ADragon::MoveByPitch(float DeltaTime)
 {
-    // Find pitch of pawn to chase
-    const auto TargetPitchSpeed = (FindPawnLookAtRotation().Pitch);
+    
+    
+    //const auto PitchDifference = (FindPawnLookAtRotation().Pitch - GetActorRotation().Pitch);
+    //
+    //const bool bDragonShouldPitch = PitchDifference < 5.0f && PitchDifference > -5.0f;
+    //
+    //// Find pitch of pawn to chase
+    //const auto TargetPitchSpeed = bDragonShouldPitch ? (FindPawnLookAtRotation().Pitch) : CurrentPitchSpeed;
 
-    CurrentPitchSpeed = FMath::FInterpTo(CurrentPitchSpeed, TargetPitchSpeed, DeltaTime , 2.0f);
+    //CurrentPitchSpeed = FMath::FInterpTo(CurrentPitchSpeed, TargetPitchSpeed, DeltaTime , 1.0f);
 }
 
 void ADragon::MoveByYawRoll(float DeltaTime)
 {
-    const auto TargetYawSpeed = FindPawnLookAtRotation().Yaw;
+    /*const auto TargetYawSpeed = FindPawnLookAtRotation().Yaw;
 
-    CurrentYawSpeed = FMath::FInterpTo(CurrentYawSpeed, TargetYawSpeed, DeltaTime, 2.0f);
+    CurrentYawSpeed = FMath::FInterpTo(CurrentYawSpeed, TargetYawSpeed, DeltaTime, 1.0f);
 
-    float TargetRollSpeed = FindPawnLookAtRotation().Roll;
+    const bool bIsTurning = (FindPawnLookAtRotation().Yaw - GetActorRotation().Yaw) != 0.0f;
 
-    CurrentRollSpeed = FMath::FInterpTo(CurrentRollSpeed, TargetRollSpeed, DeltaTime, 2.0f);
+    const auto TargetRollSpeed = bIsTurning ? (CurrentYawSpeed * 0.5f) : (GetActorRotation().Roll * -2.0f);
+
+    CurrentRollSpeed = FMath::FInterpTo(CurrentRollSpeed, TargetRollSpeed, DeltaTime, 1.0f);*/
 }
 
 

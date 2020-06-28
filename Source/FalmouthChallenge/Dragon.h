@@ -32,18 +32,9 @@ protected:
 private:
 	class APawn* PawnToChase;
 
-	UFUNCTION()
-	void FollowPawn();
-
 	// Find the rotation to look at pawn
 	UFUNCTION()
 	FRotator FindPawnLookAtRotation();
-
-	UFUNCTION()
-	float PawnToChasePitch();
-
-	UFUNCTION()
-	float PawnToChaseYawRoll();
 
 	void MoveByPitch(float DeltaTime);
 	

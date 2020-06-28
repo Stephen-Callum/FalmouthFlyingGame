@@ -15,6 +15,7 @@ ABase_FlyingPawn::ABase_FlyingPawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
+	SphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	RootComponent = SphereCollision;
 
 	bUseControllerRotationYaw = false;

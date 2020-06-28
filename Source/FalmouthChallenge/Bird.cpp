@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 ABird::ABird()
@@ -13,14 +14,14 @@ ABird::ABird()
     PrimaryActorTick.bCanEverTick = true;
 
     // create static mesh component
-    PawnMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PawnMesh"));
-    PawnMesh->SetupAttachment(RootComponent);
+    PawnSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PawnMesh"));
+    PawnSkeletalMesh->SetupAttachment(RootComponent);
 
     // spring arm component creation and setup
     SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
     SpringArm->SetupAttachment(RootComponent);
-    SpringArm->TargetArmLength = 2000.0f;
-    SpringArm->SocketOffset = FVector(0.0f, 0.0f, 300.0f);
+    SpringArm->TargetArmLength = 500.0f;
+    SpringArm->SocketOffset = FVector(0.0f, 0.0f, 200.0f);
     SpringArm->bEnableCameraLag = false;
     SpringArm->CameraLagSpeed = 15.0f;
     SpringArm->bInheritRoll = false;
@@ -53,6 +54,17 @@ ABird::ABird()
 void ABird::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+
+// Called to bind functionality to input
+void ABird::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+    // Bind controls to callback functions
+    PlayerInputComponent->BindAxis("YawRollControl", this, &ABird::YawRollInput);
+    PlayerInputComponent->BindAxis("PitchControl", this, &ABird::PitchInput);
+    PlayerInputComponent->BindAxis("SpeedControl", this, &ABird::SpeedInput);
 }
 
 void ABird::MaxSpeedModifier()
