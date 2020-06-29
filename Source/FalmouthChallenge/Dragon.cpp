@@ -83,33 +83,6 @@ FRotator ADragon::FindPawnLookAtRotation()
     return RotationToPawn;
 }
 
-void ADragon::MoveByPitch(float DeltaTime)
-{
-    
-    
-    //const auto PitchDifference = (FindPawnLookAtRotation().Pitch - GetActorRotation().Pitch);
-    //
-    //const bool bDragonShouldPitch = PitchDifference < 5.0f && PitchDifference > -5.0f;
-    //
-    //// Find pitch of pawn to chase
-    //const auto TargetPitchSpeed = bDragonShouldPitch ? (FindPawnLookAtRotation().Pitch) : CurrentPitchSpeed;
-
-    //CurrentPitchSpeed = FMath::FInterpTo(CurrentPitchSpeed, TargetPitchSpeed, DeltaTime , 1.0f);
-}
-
-void ADragon::MoveByYawRoll(float DeltaTime)
-{
-    /*const auto TargetYawSpeed = FindPawnLookAtRotation().Yaw;
-
-    CurrentYawSpeed = FMath::FInterpTo(CurrentYawSpeed, TargetYawSpeed, DeltaTime, 1.0f);
-
-    const bool bIsTurning = (FindPawnLookAtRotation().Yaw - GetActorRotation().Yaw) != 0.0f;
-
-    const auto TargetRollSpeed = bIsTurning ? (CurrentYawSpeed * 0.5f) : (GetActorRotation().Roll * -2.0f);
-
-    CurrentRollSpeed = FMath::FInterpTo(CurrentRollSpeed, TargetRollSpeed, DeltaTime, 1.0f);*/
-}
-
 
 
 

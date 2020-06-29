@@ -36,9 +36,5 @@ private:
 	UFUNCTION()
 	FRotator FindPawnLookAtRotation();
 
-	void MoveByPitch(float DeltaTime);
-	
-	void MoveByYawRoll(float DeltaTime);
-
 	void SpeedInput(float DeltaTime);
 };
