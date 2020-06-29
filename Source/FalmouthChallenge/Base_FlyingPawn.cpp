@@ -14,9 +14,11 @@ ABase_FlyingPawn::ABase_FlyingPawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Create spherical collision for pawn
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
 	RootComponent = SphereCollision;
 
+	// Dissociate controller rotation from pawn.
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -35,7 +37,7 @@ void ABase_FlyingPawn::Tick(float DeltaTime)
 {
 
 	FVector LocalMove = FVector(0.0f, 0.0f, 0.0f);
-
+	// If character is colliding with world, repel them backwards, else do normal forward input
 	if (CollisionTimer > 0.0f)
 	{
 		LocalMove = FVector(-1000.0f * DeltaTime, 0.0f, 0.0f);
@@ -59,8 +61,6 @@ void ABase_FlyingPawn::Tick(float DeltaTime)
 	// Rotate pawn
 	AddActorLocalRotation(DeltaRotation);
 
-	//GEngine->AddOnScreenDebugMessage(0, 0.0f, FColor::Cyan, FString::Printf(TEXT("ForwardSpeed: %f"), CurrentForwardSpeed));
-
 	Super::Tick(DeltaTime);
 
 }
@@ -72,6 +72,7 @@ void ABase_FlyingPawn::SpeedInput(float Val)
 
 	float CurrentAcc = 0.0f;
 
+	// If player is facing down, add acceleration automatically, else do normal acceleration.
 	if (bHasInput && GetActorRotation().Pitch > 0.0f)
 	{
 		CurrentAcc = GetWorld()->GetDeltaSeconds() * (Val * Acceleration);
@@ -102,16 +103,18 @@ void ABase_FlyingPawn::PitchInput(float Rate)
 
 void ABase_FlyingPawn::MoveByYawRoll(float Val)
 {
+	// Interpolate current yaw to target yaw based on input
 	float TargetYawSpeed = (Val * YawRateMultiplier);
-
 	CurrentYawSpeed = FMath::FInterpTo(CurrentYawSpeed, TargetYawSpeed, GetWorld()->GetDeltaSeconds(), 2.0f);
 
+	// Is player rolling intentionally?
 	bIntendingRoll = FMath::Abs(Val) > 0.0f;
 
+	// If player is pitching and not rolling, exit function
 	if (bIntendingPitch && !bIntendingRoll) return;
 
+	// Interpolate current roll to target roll based on input
 	float TargetRollSpeed = bIntendingRoll ? ((Val * RollRateMultiplier) + (CurrentYawSpeed * 0.5)) : (GetActorRotation().Roll * -2.0f);
-
 	CurrentRollSpeed = FMath::FInterpTo(CurrentRollSpeed, TargetRollSpeed, GetWorld()->GetDeltaSeconds(), 2.0f);
 
 }

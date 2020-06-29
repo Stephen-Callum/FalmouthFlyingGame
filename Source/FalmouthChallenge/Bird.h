@@ -41,16 +41,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-private:
-	// Change max speed depending on pitch
-	void MaxSpeedModifier();
 	
 
 public:
-	FORCEINLINE class USpringArmComponent* GetSpringArm() const { return SpringArm; }
-
-	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
 
 	// Return mesh subobject
 	FORCEINLINE class USkeletalMeshComponent* GetSkeletalMesh() const { return PawnSkeletalMesh; }

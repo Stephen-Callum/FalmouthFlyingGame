@@ -31,13 +31,15 @@ ABird::ABird()
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
     Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
     Camera->bUsePawnControlRotation = false;
-
+    
+    // Set up top down view spring arm
     TopDownSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("TopDownSpringArm"));
     TopDownSpringArm->SetupAttachment(RootComponent);
     TopDownSpringArm->TargetArmLength = 2000.0f;
     TopDownSpringArm->bInheritRoll = false;
     TopDownSpringArm->bInheritPitch = false;
 
+    // Set up top down view camera
     TopDownCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("TopDownCamera"));
     TopDownCamera->SetupAttachment(TopDownSpringArm, USpringArmComponent::SocketName);
 
@@ -66,8 +68,4 @@ void ABird::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
     PlayerInputComponent->BindAxis("YawRollControl", this, &ABird::YawRollInput);
     PlayerInputComponent->BindAxis("PitchControl", this, &ABird::PitchInput);
     PlayerInputComponent->BindAxis("SpeedControl", this, &ABird::SpeedInput);
-}
-
-void ABird::MaxSpeedModifier()
-{
 }
