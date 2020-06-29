@@ -2,14 +2,14 @@
 
 ## Instructions to play
 
-Keyboard:
+Keyboard: \
   W - Down, \
   A - Left, \
   S - Up, \
   D - Right, \
-  Left Shift - Speed Up \
+  Left Shift - Speed Up
   
-Controller: 
+Controller: \
   Left Stick Up - Fly Down, \
   Left Stick Down - Fly Up, \
   Left Stick Left - Fly Left, \
