@@ -15,7 +15,6 @@ ABase_FlyingPawn::ABase_FlyingPawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
-	SphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	RootComponent = SphereCollision;
 
 	bUseControllerRotationYaw = false;
@@ -23,20 +22,30 @@ ABase_FlyingPawn::ABase_FlyingPawn()
 	bUseControllerRotationRoll = false;
 }
 
-void ABase_FlyingPawn::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+void ABase_FlyingPawn::OnCollision(FVector HitNormal)
 {
-	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-
-	// Deflect off surface that the pawn collides with
 	const FRotator CurrentRotation = GetActorRotation();
 	SetActorRotation(FQuat::Slerp(CurrentRotation.Quaternion(), HitNormal.ToOrientationQuat(), 0.025f));
+	GEngine->AddOnScreenDebugMessage(0, 0.0f, FColor::Cyan, FString::Printf(TEXT("SOMETHING HIT")));
+	CollisionTimer = 1.0f;
 }
 
 // Called every frame
 void ABase_FlyingPawn::Tick(float DeltaTime)
 {
 
-	const FVector LocalMove = FVector(CurrentForwardSpeed * DeltaTime, 0.0f, 0.0f);
+	FVector LocalMove = FVector(0.0f, 0.0f, 0.0f);
+
+	if (CollisionTimer > 0.0f)
+	{
+		LocalMove = FVector(-1000.0f * DeltaTime, 0.0f, 0.0f);
+		CollisionTimer -= DeltaTime;
+	}
+	else
+	{
+		LocalMove = FVector(CurrentForwardSpeed * DeltaTime, 0.0f, 0.0f);
+	}
+	LocalMove = FVector(CurrentForwardSpeed * DeltaTime, 0.0f, 0.0f);
 
 	//// Move pawn forwards, sweeping stops the pawn when we collide with other objects
 	AddActorLocalOffset(LocalMove, true);
@@ -50,7 +59,7 @@ void ABase_FlyingPawn::Tick(float DeltaTime)
 	// Rotate pawn
 	AddActorLocalRotation(DeltaRotation);
 
-	GEngine->AddOnScreenDebugMessage(0, 0.0f, FColor::Cyan, FString::Printf(TEXT("ForwardSpeed: %f"), CurrentForwardSpeed));
+	//GEngine->AddOnScreenDebugMessage(0, 0.0f, FColor::Cyan, FString::Printf(TEXT("ForwardSpeed: %f"), CurrentForwardSpeed));
 
 	Super::Tick(DeltaTime);
 

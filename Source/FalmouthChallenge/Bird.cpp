@@ -16,12 +16,13 @@ ABird::ABird()
     // create static mesh component
     PawnSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PawnMesh"));
     PawnSkeletalMesh->SetupAttachment(RootComponent);
+    PawnSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
     // spring arm component creation and setup
     SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
     SpringArm->SetupAttachment(RootComponent);
-    SpringArm->TargetArmLength = 500.0f;
-    SpringArm->SocketOffset = FVector(0.0f, 0.0f, 200.0f);
+    SpringArm->TargetArmLength = 400.0f;
+    SpringArm->SocketOffset = FVector(0.0f, 0.0f, 100.0f);
     SpringArm->bEnableCameraLag = false;
     SpringArm->CameraLagSpeed = 15.0f;
     SpringArm->bInheritRoll = false;
@@ -43,7 +44,7 @@ ABird::ABird()
     // Set flying control parameters
     Acceleration = 500.0f;
     TurnSpeed = 50.0f;
-    MaxSpeed = 5000.0f;
+    MaxSpeed = 2000.0f;
     MinSpeed = 500.0f;
     CurrentForwardSpeed = 500.0f;
     YawRateMultiplier = 200.0f;
